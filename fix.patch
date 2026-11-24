@@ -1,0 +1,272 @@
+diff --git a/index.html b/index.html
+index 509dbae..aa36491 100644
+--- a/index.html
++++ b/index.html
+@@ -194,7 +194,7 @@ input[type=range]{accent-color:var(--olive-deep);width:100%}
+ .dash-hero{display:flex;gap:18px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;margin-bottom:20px}
+ .dash-hero h2{font-size:clamp(22px,3.4vw,30px)}
+ .stat-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin:18px 0 24px}
+-.stat{background:var(--white);border:1px solid var(--line);border-radius:14px;padding:13px 15px;box-shadow:var(--shadow-sm)}
++.stat{background:var(--white);border:1px solid var(--line);border-radius:14px;padding:13px 15px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;gap:3px;min-height:104px}
+ .stat .v{font-family:var(--font-serif);font-size:22px;color:var(--olive-forest);font-weight:700}
+ .stat .k{font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--ink-soft);font-weight:700}
+ .stat .d{font-size:11px;color:var(--gold-dark);font-weight:600}
+@@ -206,8 +206,8 @@ input[type=range]{accent-color:var(--olive-deep);width:100%}
+ .lab-card .content{position:relative;display:flex;flex-direction:column;gap:6px}
+ .lab-card .tag{color:var(--gold)}
+ .lab-card h3{color:var(--cream);font-size:22px}
+-.lab-card p{margin:0;font-size:12.5px;color:rgba(246,240,228,.8);max-width:26em}
+-.lab-card .meta{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px}
++.lab-card p{margin:0;font-size:12.5px;color:rgba(246,240,228,.8);max-width:26em;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
++.lab-card .meta{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:auto;padding-top:10px}
+ .lab-card .progress{background:rgba(246,240,228,.22);height:7px}
+ .lab-card .progress>i{background:var(--gold)}
+ .pill-btn{background:var(--gold);color:#2E2408;border:0;border-radius:999px;padding:8px 16px;font-weight:700;font-size:12px;cursor:pointer;box-shadow:var(--shadow-sm)}
+@@ -336,11 +336,11 @@ input[type=range]{accent-color:var(--olive-deep);width:100%}
+ .badge-card b{font-size:12.5px;display:block}
+ .badge-card span{font-size:10.5px;color:var(--ink-soft)}
+ .badge-card.earned{border-color:rgba(197,166,106,.5)}
+-.mission-card{display:flex;gap:13px;padding:14px;border:1px solid var(--line);border-radius:15px;background:var(--white);box-shadow:var(--shadow-sm);margin-bottom:12px;align-items:flex-start}
++.mission-card{display:flex;gap:13px;padding:14px;border:1px solid var(--line);border-radius:15px;background:var(--white);box-shadow:var(--shadow-sm);margin-bottom:12px;align-items:center}
+ .mission-card .num{font-family:var(--font-serif);font-size:21px;font-weight:700;color:var(--gold-dark);background:rgba(197,166,106,.14);border:1px solid rgba(197,166,106,.4);border-radius:12px;width:52px;height:52px;display:grid;place-items:center;flex:none}
+ .mission-card.done{border-color:rgba(137,150,107,.5);background:linear-gradient(160deg,#F4F6EA,#EAF0DC)}
+ .mission-card.done .num{color:var(--olive-forest);background:rgba(137,150,107,.2);border-color:var(--sage)}
+-.mission-card h4{font-size:14.5px;margin-bottom:3px}
++.mission-card h4{font-size:14.5px;margin-bottom:3px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+ .mission-card .d{font-size:12px;color:var(--ink-soft)}
+ .tier-pill{font-size:9px;letter-spacing:1.6px;font-weight:800;text-transform:uppercase;padding:3px 9px;border-radius:999px;background:var(--cream);color:var(--ink-soft);border:1px solid var(--line-strong)}
+ .tier-pill.adv{background:rgba(197,166,106,.16);color:var(--gold-dark);border-color:rgba(197,166,106,.45)}
+@@ -530,10 +530,43 @@ App.Store = {
+     return s;
+   },
+   _t: null,
++  _quotaToastAt: 0,
+   save() { clearTimeout(this._t); this._t = setTimeout(() => this.saveNow(), 250); },
++  pruneSessions(keep) { // drop oldest simulation recordings; returns how many were removed
++    const st = this.state;
++    if (!st || !Array.isArray(st.simSessions)) return 0;
++    const before = st.simSessions.length;
++    if (keep == null) keep = Math.max(5, Math.floor(before / 2));
++    st.simSessions.length = Math.min(before, keep);
++    return before - st.simSessions.length;
++  },
+   saveNow() {
+     try { localStorage.setItem(this.KEY, JSON.stringify(this.state)); }
+-    catch (e) { try { App.UI.toast('Browser storage is full — export your data from Settings.', 'warn'); } catch (_) {} }
++    catch (e) {
++      // First aid: the usual culprit is a pile of old simulation recordings —
++      // prune them and retry once before blaming the user's browser.
++      let recovered = false;
++      try {
++        if (this.state && Array.isArray(this.state.simSessions) && this.state.simSessions.length > 5) {
++          const removed = this.pruneSessions();
++          localStorage.setItem(this.KEY, JSON.stringify(this.state));
++          recovered = true;
++          try { App.UI.toast('Storage was nearly full \u2014 ' + removed + ' old simulation recording(s) pruned to free space. Your projects and account are safe.', 'warn'); } catch (_) {}
++        }
++      } catch (_e) { /* still failing */ }
++      if (!recovered) {
++        // Distinguish blocked storage (private window / site data disabled) from a full quota
++        let blocked = false;
++        try { localStorage.setItem(this.KEY + '__probe', '1'); localStorage.removeItem(this.KEY + '__probe'); }
++        catch (_e2) { blocked = true; }
++        const msg = blocked
++          ? 'Browser storage is blocked (private window or site data disabled) \u2014 work cannot be saved. Export your data from Settings.'
++          : 'Browser storage is genuinely full \u2014 export your data from Settings, then use "Free up space" or "Clear everything" to continue.';
++        try {
++          if (!this._quotaToastAt || Date.now() - this._quotaToastAt > 60000) { this._quotaToastAt = Date.now(); App.UI.toast(msg, 'warn'); }
++        } catch (_) {}
++      }
++    }
+   },
+   exportAll() { return JSON.stringify(this.state, null, 2); },
+   importAll(json) {
+@@ -1799,6 +1832,7 @@ E.markDirty = function () {
+     }
+     E.sim.log.push({t: Date.now(), msg: 'Simulation started (digital mode \u2014 HIGH/LOW logic, no analog current solving).'});
+     E.sim.timer = setInterval(E.simTick, 220);
++    E.simTick(); // evaluate immediately so LEDs/logic light up without the first 220 ms delay
+     E.syncToolbar();
+     App.Store.save();
+   };
+@@ -1969,6 +2003,7 @@ E.markDirty = function () {
+         <button class="btn sm" id="e-pause">${App.I('pause', 13)} Pause</button>
+         <button class="btn sm" id="e-stop">${App.I('stop', 13)} Stop</button>
+         <button class="btn sm" id="e-reset">${App.I('reset', 13)} Reset</button>
++        <button class="btn sm gold" id="e-examples">${App.I('book', 13)} Examples</button>
+         <span class="sep"></span>
+         <button class="btn sm icon" id="e-rotate" title="Rotate selection (R)">${App.I('rotate', 15)}</button>
+         <button class="btn sm icon danger" id="e-del" title="Delete selection (Del)">${App.I('trash', 15)}</button>
+@@ -2038,11 +2073,15 @@ E.markDirty = function () {
+     E._loadedFromRoute = true;
+     // seed a friendly starter circuit BEFORE binding, so the workspace is never empty
+     if (loaded && !E.comps.length) {
+-      // seed with a helpful starter: Arduino + resistor + LED, unwired (user wires manually)
+-      const a = {id: App.uid('c'), key: 'arduino', x: 60, y: 40, rot: 0, props: {}, label: 'Arduino Uno'};
+-      const r = {id: App.uid('c'), key: 'res', x: 340, y: 200, rot: 0, props: {value: '220\u03A9'}, label: 'Resistor'};
+-      const l = {id: App.uid('c'), key: 'led', x: 480, y: 200, rot: 0, props: {color: 'Red'}, label: 'LED'};
+-      E.comps.push(a, r, l);
++      // seed a WORKING, fully-wired example (battery -> resistor -> LED) so the
++      // very first press of Run lights the LED with zero wiring required
++      const bat = {id: App.uid('c'), key: 'bat9', x: 160, y: 170, rot: 0, props: {}, label: '9V Battery'};
++      const r = {id: App.uid('c'), key: 'res', x: 360, y: 170, rot: 0, props: {value: '220\u03A9'}, label: 'Resistor'};
++      const l = {id: App.uid('c'), key: 'led', x: 520, y: 170, rot: 0, props: {color: 'Red'}, label: 'LED'};
++      E.comps.push(bat, r, l);
++      E.addWire({cid: bat.id, pid: 'pos'}, {cid: r.id, pid: 'a'});
++      E.addWire({cid: r.id, pid: 'b'}, {cid: l.id, pid: 'a'});
++      E.addWire({cid: l.id, pid: 'k'}, {cid: bat.id, pid: 'neg'});
+       E.fitView();
+       E.validate(true);
+     }
+@@ -2211,20 +2250,70 @@ E.markDirty = function () {
+     });
+   };
+ 
++  /* ---------- example circuits ---------- */
++  E.loadExample = function (name) {
++    if (E.sim.running) E.pauseSim();
++    E.mode = 'edit';
++    E.reset();
++    if (name === 'blink') {
++      const uno = E.place('arduino', 60, 40), r = E.place('res', 340, 250), l = E.place('led', 500, 250), g = E.place('gnd', 500, 350);
++      E.addWire({cid: uno.id, pid: 'D13'}, {cid: r.id, pid: 'a'});
++      E.addWire({cid: r.id, pid: 'b'}, {cid: l.id, pid: 'a'});
++      E.addWire({cid: l.id, pid: 'k'}, {cid: g.id, pid: 'g'});
++      E.pinModes[uno.id] = {D13: {mode: 'output', state: 'HIGH', blink: true, period: 1000}};
++    } else if (name === 'button') {
++      const bat = E.place('bat9', 100, 190), b = E.place('btn', 300, 190), r = E.place('res', 440, 190), l = E.place('led', 600, 190);
++      E.addWire({cid: bat.id, pid: 'pos'}, {cid: b.id, pid: 'a'});
++      E.addWire({cid: b.id, pid: 'b'}, {cid: r.id, pid: 'a'});
++      E.addWire({cid: r.id, pid: 'b'}, {cid: l.id, pid: 'a'});
++      E.addWire({cid: l.id, pid: 'k'}, {cid: bat.id, pid: 'neg'});
++    } else { // 'led' — battery + resistor + LED
++      const bat = E.place('bat9', 160, 170), r = E.place('res', 360, 170), l = E.place('led', 520, 170);
++      E.addWire({cid: bat.id, pid: 'pos'}, {cid: r.id, pid: 'a'});
++      E.addWire({cid: r.id, pid: 'b'}, {cid: l.id, pid: 'a'});
++      E.addWire({cid: l.id, pid: 'k'}, {cid: bat.id, pid: 'neg'});
++    }
++    E.fitView(); E.validate(true);
++    E.renderInspector(); E.updateHint(); E.syncToolbar();
++    App.Store.save();
++  };
++  E.openExamples = function () {
++    const card = (key, icon, title, desc) => `<div class="card"><h3>${App.I(icon, 15)} ${title}</h3><p class="small muted" style="margin-bottom:10px">${desc}</p><button class="btn sm primary" data-ex="${key}">${App.I('play', 12)} Load example</button></div>`;
++    const m = App.UI.modal({
++      title: 'Example circuits \u2014 load one, press Run',
++      wide: true,
++      body: '<div class="grid c3" style="grid-template-columns:repeat(auto-fit,minmax(215px,1fr))">' +
++        card('led', 'zap', 'LED + Battery', '9V battery \u2192 220\u03A9 resistor \u2192 LED. The classic first circuit \u2014 press Run and the LED lights instantly.') +
++        card('blink', 'cpu', 'Blink D13', 'Arduino Uno D13 \u2192 resistor \u2192 LED \u2192 GND, blink preset applied. Run it and watch the LED pulse at 1 Hz.') +
++        card('button', 'glove', 'Button + LED', 'Battery \u2192 push button \u2192 resistor \u2192 LED. Run, then press the button on the canvas to light the LED.') +
++        '</div>'
++    });
++    App.$$('[data-ex]', m.el).forEach(b => b.addEventListener('click', () => {
++      E.loadExample(b.dataset.ex);
++      m.close();
++      App.UI.toast('Example loaded \u2014 press Run to simulate.');
++    }));
++  };
++
+   /* ---------- toolbar ---------- */
+   E.bindToolbar = function () {
+     const $ = id => document.getElementById(id);
+     const on = (id, ev, fn) => { const el = $(id); if (el) el.addEventListener(ev, fn); else console.warn('toolbar element missing:', id); };
+-    $('#emode-seg').addEventListener('click', e => {
++    // NOTE: pass plain ids to the $ helper (getElementById) — never '#id'.
++    // The old $('#emode-seg') call returned null and the thrown TypeError
++    // silently killed EVERY toolbar binding below (Run/Pause/Stop/Reset/
++    // Validate/PNG/Save/zoom/panel tabs were all dead).
++    on('emode-seg', 'click', e => {
+       const b = e.target.closest('button'); if (!b) return;
+-      if (b.dataset.m === 'sim' && E.mode !== 'sim') { E.startSim(); }
+-      if (b.dataset.m === 'edit' && E.sim.running) { E.pauseSim(); E.mode = 'edit'; }
++      if (b.dataset.m === 'sim') { E.startSim(); }                    // starts or resumes
++      else { if (E.sim.running) E.pauseSim(); E.mode = 'edit'; }      // always returns to edit
+       E.syncToolbar(); E.updateHint();
+     });
+     on('e-run', 'click', () => { E.startSim(); E.syncToolbar(); });
+     on('e-pause', 'click', () => { E.pauseSim(); E.syncToolbar(); });
+     on('e-stop', 'click', () => { E.stopSim(); E.syncToolbar(); });
+     on('e-reset', 'click', () => { E.resetSim(); E.syncToolbar(); });
++    on('e-examples', 'click', E.openExamples);
+     on('e-rotate', 'click', E.rotateSel);
+     on('e-del', 'click', E.deleteSel);
+     on('e-validate', 'click', () => {
+@@ -2281,11 +2370,13 @@ E.markDirty = function () {
+     App.$$('#epanel-tabs button').forEach(b => b.classList.toggle('active', b.dataset.t === t));
+     const body = document.getElementById('epanel-body');
+     if (!body) return;
++    // set the tab FIRST — the render helpers below guard on body.dataset.tab,
++    // so rendering before this assignment left the panel empty on first click
++    body.dataset.tab = t;
+     if (t === 'insp') E.renderInspector();
+     if (t === 'pins') E.renderPins();
+     if (t === 'log') E.renderLog();
+     if (t === 'issues') E.renderIssues();
+-    body.dataset.tab = t;
+   };
+   E.syncToolbar = function () {
+     const seg = document.getElementById('emode-seg');
+@@ -3345,8 +3436,22 @@ App.SimLab = {
+   record(sess) {
+     const st = App.Store.state;
+     st.simSessions = st.simSessions || [];
+-    st.simSessions.unshift(sess);
+-    if (st.simSessions.length > 30) st.simSessions.length = 30;
++    // keep browser storage small: decimate dense tracks & trim event logs
++    // before persisting (charts render the same shape with ~1200 points)
++    const slimTrack = t => {
++      if (!t || !Array.isArray(t.data)) return t;
++      const CAP = 1200;
++      if (t.data.length <= CAP) return t;
++      const step = Math.ceil(t.data.length / CAP);
++      const out = [];
++      for (let i = 0; i < t.data.length; i += step) out.push(t.data[i]);
++      const last = t.data[t.data.length - 1];
++      if (out[out.length - 1] !== last) out.push(last);
++      return Object.assign({}, t, {data: out});
++    };
++    const slim = Object.assign({}, sess, {tracks: (sess.tracks || []).map(slimTrack), events: (sess.events || []).slice(-60)});
++    st.simSessions.unshift(slim);
++    if (st.simSessions.length > 20) st.simSessions.length = 20;
+     // sync into the linked project (cross-lab workflow, autosave on)
+     const pid = App.Store.state.ui.activeProjectId;
+     if (pid && App.Store.state.settings.autosave) {
+@@ -3900,7 +4005,9 @@ SL.drawWave = function () {
+     render() {
+       const s = App.Store.state.settings;
+       const st = App.Store.state;
+-      const size = App.bytes(JSON.stringify(st).length);
++      const rawLen = JSON.stringify(st).length;
++      const size = App.bytes(rawLen);
++      const pct = Math.min(100, Math.max(1, Math.round(rawLen / 5242880 * 100)));
+       const T = (k, label, desc) => `<div class="insp-row" style="padding:12px 0"><div><b style="font-size:13.5px">${label}</b><div class="tiny muted">${desc}</div></div><button class="toggle ${s[k] ? 'on' : ''}" data-set="${k}"></button></div>`;
+       return `
+       <div class="grid c2" style="max-width:900px">
+@@ -3914,9 +4021,12 @@ SL.drawWave = function () {
+           <div class="card">
+             <h3>${I('save', 15)} Your data (${size})</h3>
+             <p class="small muted">Everything — accounts, projects, sessions, feedback — lives in this browser's local storage. Export a backup file to move it or keep it safe.</p>
+-            <div class="btn-row">
++            <div class="progress" style="margin:10px 0 4px"><i style="width:${pct}%"></i></div>
++            <div class="tiny muted">${size} used of ~5 MB typical browser quota · ${st.simSessions.length} simulation recording${st.simSessions.length === 1 ? '' : 's'} stored. Tip: other apps hosted on the same site domain share this quota.</div>
++            <div class="btn-row" style="margin-top:10px">
+               <button class="btn sm primary" id="st-export">${I('download', 13)} Export all data</button>
+               <label class="btn sm ghost" style="position:relative">${I('upload', 13)} Import backup<input type="file" id="st-import" accept=".json" style="position:absolute;inset:0;opacity:0;cursor:pointer"></label>
++              <button class="btn sm ghost" id="st-prune">${I('reset', 13)} Free up space</button>
+               <button class="btn sm danger" id="st-clear">${I('trash', 13)} Clear everything</button>
+             </div>
+           </div>
+@@ -3940,6 +4050,12 @@ SL.drawWave = function () {
+         App.download('circuitverse_backup.json', App.Store.exportAll(), 'application/json');
+         App.UI.toast('Backup exported.');
+       });
++      document.getElementById('st-prune').addEventListener('click', () => {
++        const removed = App.Store.pruneSessions(5);
++        App.Store.saveNow();
++        App.UI.toast(removed ? removed + ' old simulation recording(s) cleared — ' + App.bytes(JSON.stringify(App.Store.state).length) + ' now in use.' : 'Nothing to clear — fewer than 5 recordings stored.');
++        App.Router.render();
++      });
+       document.getElementById('st-import').addEventListener('change', e => {
+         const f = e.target.files[0];
+         if (!f) return;

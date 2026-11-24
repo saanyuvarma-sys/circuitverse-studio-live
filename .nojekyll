@@ -1,0 +1,35 @@
+# CircuitVerse Studio
+
+### Design. Simulate. Explore.
+
+CircuitVerse Studio is an interactive engineering education platform designed to help students explore electronics, digital circuits and simulations.
+
+## Live Website
+
+https://saanyuvarma-sys.github.io/CircuitVerse-Studio/
+
+## Laboratories
+
+1. Electronics Lab
+2. Aerospace Lab
+3. Simulation Lab
+
+## Features
+
+- Interactive circuit design
+- Component placement and wiring
+- Digital circuit simulation
+- Project saving and exporting
+- Educational simulation tools
+
+## Technology
+
+HTML, CSS and JavaScript.
+
+## Developer
+
+Saanyu Varma
+
+## License
+
+MIT

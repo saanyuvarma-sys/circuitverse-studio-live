@@ -1,0 +1,20 @@
+{
+  "name": "circuitverse-studio",
+  "version": "1.0.0",
+  "description": "Interactive electronics, aerospace and simulation engineering learning studio",
+  "main": "serve.js",
+  "scripts": {
+    "start": "node serve.js",
+    "serve": "node serve.js",
+    "test": "node test.js"
+  },
+  "keywords": [
+    "circuitverse",
+    "electronics",
+    "circuit-simulator",
+    "aerospace",
+    "simulation"
+  ],
+  "author": "Saanyu Varma",
+  "license": "MIT"
+}
