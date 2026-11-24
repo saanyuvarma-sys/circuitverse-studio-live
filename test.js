@@ -261,7 +261,40 @@ if (!loginPromptShown || !projectSaved || !App.Auth.isLoggedIn()) {
 console.log("✓ Save-gated authentication succeeded: prompted login, saved project under authenticated account!");
 App.Auth.showLoginModal = origShowModal;
 
-console.log("\n======================================================");
-console.log("🎉 ALL TESTS PASSED! CircuitVerse Studio is 100% healthy!");
-console.log("======================================================");
-process.exit(0);
+// 8. Test Experiment Save Button in Guided Assistant Flow
+console.log("\n--- Testing Dedicated 'Save Experiment' Flow ---");
+App.Auth.logout(); // Reset to guest
+let expLoginPrompted = false;
+App.Auth.showLoginModal = function(cb, action) {
+  expLoginPrompted = true;
+  console.log(`  ✓ Triggered login requirement for: "${action}"`);
+  App.Auth.login('researcher@lab.org', 'securePass1', 'Dr. Evelyn Chen');
+  if (cb) cb();
+};
+
+// Mock App.UI.prompt for headless test
+const origPrompt = App.UI.prompt;
+App.UI.prompt = function(title, body) {
+  return Promise.resolve({ name: '01 · First Light (LED Loop)', desc: 'Saved experiment' });
+};
+
+// Simulate clicking 'Save Experiment' while on Exp 01
+E.setExperiment('first_light');
+E.autoAssembleExperiment('first_light');
+E.saveExperimentAsProject();
+
+setTimeout(() => {
+  const savedExpProject = App.Store.state.projects.find(p => p.owner === 'researcher@lab.org');
+  if (!expLoginPrompted || !savedExpProject || !savedExpProject.data || !savedExpProject.data.electronics) {
+    console.error("❌ Experiment save flow failed or did not gate login properly!");
+    process.exit(1);
+  }
+  console.log(`✓ Experiment successfully gated by login and saved: "${savedExpProject.name}" (Components: ${savedExpProject.data.electronics.comps.length}, Wires: ${savedExpProject.data.electronics.wires.length})`);
+  App.Auth.showLoginModal = origShowModal;
+  App.UI.prompt = origPrompt;
+
+  console.log("\n======================================================");
+  console.log("🎉 ALL TESTS PASSED! CircuitVerse Studio is 100% healthy!");
+  console.log("======================================================");
+  process.exit(0);
+}, 50);

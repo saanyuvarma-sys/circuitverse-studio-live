@@ -3277,6 +3277,31 @@ E.markDirty = function () {
     App.UI.toast('Circuit assembled cleanly! Press Run to simulate.', 'gold');
   };
 
+  E.saveExperimentAsProject = function () {
+    App.Auth.requireLogin(() => {
+      const status = (E.checkExperiment && E.checkExperiment()) || {};
+      const exp = status.exp || (E.EXPERIMENTS && E.EXPERIMENTS.find(x => x.id === E.activeExp)) || (E.EXPERIMENTS && E.EXPERIMENTS[0]) || { num: '01', title: 'Circuit Experiment', tagline: 'Guided circuit experiment' };
+      const defaultName = `${exp.num} · ${exp.title}`;
+      App.UI.prompt('Save Experiment as Project', `
+        <div class="field"><label>Project Name</label><input class="input" name="name" value="${App.esc(defaultName)}" maxlength="60"></div>
+        <div class="field"><label>Description</label><textarea class="input" name="desc" rows="3">${App.esc(exp.tagline || 'Saved guided experiment schematic and circuit simulation.')}</textarea></div>
+      `).then(v => {
+        if (!v) return;
+        const pr = App.Projects.create(v.name || defaultName, v.desc, 'electronics');
+        pr.data.electronics = E.serialize();
+        App.Store.state.ui.activeProjectId = pr.id;
+        App.Store.save();
+        E.persistIntoProject();
+        const sel = document.getElementById('e-proj');
+        if (sel) {
+          sel.innerHTML = '<option value="">— not linked to a project —</option>' + App.Store.state.projects.map(p => '<option value="' + p.id + '"' + (p.id === pr.id ? ' selected' : '') + '>' + App.esc(p.name) + '</option>').join('');
+        }
+        App.UI.toast(`Experiment saved as "${pr.name}"!`, 'gold');
+        App.Profile.addXP(40, 'Saved Experiment: ' + pr.name);
+      });
+    }, 'Save Experiment');
+  };
+
   E.renderAssistant = function () {
     const asst = document.getElementById('e-assistant');
     if (!asst) return;
@@ -3292,6 +3317,7 @@ E.markDirty = function () {
         : `<span class="asst-step-chip wire">${App.I('zap', 11)} <b>Next: Wire ${App.esc(status.activeStep.title)}</b></span>`;
 
     const actionsHTML = `
+      <button class="btn sm gold" id="asst-save-btn" style="padding:2px 8px;font-size:11px" title="Save this experiment to your account (requires login)">${App.I('save', 11)} Save Experiment</button>
       <button class="btn sm primary" id="asst-clean-btn" style="padding:2px 8px;font-size:11px" title="Reset and guide step-by-step">${App.I('glove', 11)} Build Yourself</button>
       <button class="btn sm gold" id="asst-assemble-btn" style="padding:2px 8px;font-size:11px" title="Auto assemble circuit">${App.I('play', 11)} ${status.complete ? 'Reassemble' : 'Auto-Assemble'}</button>
       <button class="btn sm ghost" id="asst-browse-btn" style="padding:2px 7px;font-size:11px" title="Browse all experiments">${App.I('book', 11)} All</button>
@@ -3360,7 +3386,10 @@ E.markDirty = function () {
         html += `<div class="asst-success">
           ${App.I('zap', 13)}
           <span>Circuit Complete! All electrical paths active &amp; simulation running.</span>
-          <button class="btn sm primary" id="asst-next-btn" style="margin-left:auto;padding:2px 8px;font-size:11px">Next Experiment &rarr;</button>
+          <div style="display:flex;align-items:center;gap:6px;margin-left:auto;flex-wrap:wrap">
+            <button class="btn sm gold" id="asst-save-complete-btn" style="padding:2px 8px;font-size:11px" title="Save this verified circuit to your account">${App.I('save', 11)} Save Experiment</button>
+            <button class="btn sm primary" id="asst-next-btn" style="padding:2px 8px;font-size:11px">Next Experiment &rarr;</button>
+          </div>
         </div>`;
         if (!E.sim.running && !E._autoSimStarted) {
           E._autoSimStarted = true;
@@ -3386,6 +3415,12 @@ E.markDirty = function () {
 
     const browse = document.getElementById('asst-browse-btn');
     if (browse) browse.addEventListener('click', E.openExperimentsHub);
+
+    const asstSave = document.getElementById('asst-save-btn');
+    if (asstSave) asstSave.addEventListener('click', () => E.saveExperimentAsProject());
+
+    const asstSaveComp = document.getElementById('asst-save-complete-btn');
+    if (asstSaveComp) asstSaveComp.addEventListener('click', () => E.saveExperimentAsProject());
 
     const cleanBtn = document.getElementById('asst-clean-btn');
     if (cleanBtn) cleanBtn.addEventListener('click', () => E.startCleanExperiment(exp.id));
