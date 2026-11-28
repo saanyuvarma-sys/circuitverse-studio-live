@@ -105,5 +105,5 @@ npm test
 > ⚡ *Live browser circuit simulations with zero fried breadboards!* 🌸💖
 
 <p align="center">
-  <img src="https://api.memegen.link/images/success/Built_the_whole_circuit_live/Zero_magic_smoke_released.png" width="260" alt="circuitverse-studio-live cute meme" />
+  <img src="https://media.giphy.com/media/UCoZhCPdWvW1RhgUK4/giphy.gif" width="260" alt="circuitverse-studio-live cute meme" />
 </p>
