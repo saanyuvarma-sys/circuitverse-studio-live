@@ -100,10 +100,10 @@ npm test
 
 ---
 
-### 😄 Project Vibe
+### 🌸 Project Vibe ✨
 
-> ⚡ *Live circuit simulation right in the browser!* 🌐
+> ⚡ *Live browser circuit simulations with zero fried breadboards!* 🌸💖
 
 <p align="center">
-  <img src="https://api.memegen.link/images/success/Built_the_circuit_live/Zero_magic_smoke_released.png" width="320" alt="Project meme" />
+  <img src="https://api.memegen.link/images/success/Built_the_whole_circuit_live/Zero_magic_smoke_released.png" width="380" alt="circuitverse-studio-live cute meme" />
 </p>
