@@ -97,3 +97,13 @@ npm test
 
 - Created for educational engineering and open-source science simulation.
 - Original repository: [CircuitVerse-Studio](https://github.com/saanyuvarma-sys/CircuitVerse-Studio)
+
+---
+
+### 😄 Project Vibe
+
+> ⚡ *Live circuit simulation right in the browser!* 🌐
+
+<p align="center">
+  <img src="https://media.giphy.com/media/13HgwGsXF0aiGY/giphy.gif" width="320" alt="Project meme" />
+</p>
