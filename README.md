@@ -4,7 +4,7 @@
 
 CircuitVerse Studio is an interactive, browser-based engineering learning platform for exploring electronics, digital circuits, aerospace mechanics, and simulation workflows.
 
-## Live Website
+## 🌐 Live Website
 
 https://saanyuvarma-sys.github.io/CircuitVerse-Studio/
 
@@ -99,5 +99,5 @@ npm test
 - Original repository: [CircuitVerse-Studio](https://github.com/saanyuvarma-sys/CircuitVerse-Studio)
 
 <p align="center">
-  <img src="https://media.giphy.com/media/Dh5q0sShxgp13DwrvG/giphy.gif" width="260" alt="circuitverse-studio-live preview" />
+  <img src="https://media.giphy.com/media/Dh5q0sShxgp13DwrvG/giphy.gif" width="220" alt="circuitverse-studio-live preview" />
 </p>
