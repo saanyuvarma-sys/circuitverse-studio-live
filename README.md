@@ -105,5 +105,5 @@ npm test
 > ⚡ *Live circuit simulation right in the browser!* 🌐
 
 <p align="center">
-  <img src="https://media.giphy.com/media/13HgwGsXF0aiGY/giphy.gif" width="320" alt="Project meme" />
+  <img src="https://api.memegen.link/images/success/Built_the_circuit_live/Zero_magic_smoke_released.png" width="320" alt="Project meme" />
 </p>
