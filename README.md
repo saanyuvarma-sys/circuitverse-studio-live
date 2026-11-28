@@ -1,4 +1,4 @@
-# CircuitVerse Studio
+# ⚡ CircuitVerse Studio
 
 **Design. Simulate. Explore.**
 
@@ -97,3 +97,7 @@ npm test
 
 - Created for educational engineering and open-source science simulation.
 - Original repository: [CircuitVerse-Studio](https://github.com/saanyuvarma-sys/CircuitVerse-Studio)
+
+<p align="center">
+  <img src="https://media.giphy.com/media/Dh5q0sShxgp13DwrvG/giphy.gif" width="260" alt="circuitverse-studio-live preview" />
+</p>
