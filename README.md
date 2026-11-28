@@ -1,5 +1,9 @@
 # ⚡ CircuitVerse Studio
 
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black)
+![Live](https://img.shields.io/badge/Status-Live%20Labs-0F766E?style=flat-square)
+
 **Design. Simulate. Explore.**
 
 CircuitVerse Studio is an interactive, browser-based engineering learning platform for exploring electronics, digital circuits, aerospace mechanics, and simulation workflows.
@@ -10,7 +14,7 @@ https://saanyuvarma-sys.github.io/CircuitVerse-Studio/
 
 ---
 
-## What's New & Upgraded
+## ✨ What's New & Upgraded
 
 ### 1. Frictionless Exploration & Save-Gated Projects
 - **Explore 100% Freely**: Zero barriers, passwords, or mandatory login required on initial entry. Explore, build circuits, test sensors and motors, and run simulations freely in guest mode.
@@ -42,7 +46,7 @@ https://saanyuvarma-sys.github.io/CircuitVerse-Studio/
 
 ---
 
-## Laboratories
+## 🔬 Laboratories
 
 - **Electronics Lab** — interactive circuit construction, component suggestions, step-by-step wiring guides, digital logic simulation, and real-time circuit verification.
 - **Aerospace Lab** — educational aerospace systems, satellite power simulation, orbital mechanics, and UAV flight telemetry.
@@ -50,7 +54,7 @@ https://saanyuvarma-sys.github.io/CircuitVerse-Studio/
 
 ---
 
-## 8 Built-in Guided Experiments
+## 🧪 8 Built-in Guided Experiments
 
 1. **[EXP 01] First Light (LED + Resistor Loop)** — 9V Battery → 220Ω Resistor → Red LED.
 2. **[EXP 02] Interactive Push-Button Switch** — Momentary tactile push switch controlling current flow to an LED.
@@ -63,12 +67,16 @@ https://saanyuvarma-sys.github.io/CircuitVerse-Studio/
 
 ---
 
-## Run Locally
+## ▶️ Run Locally
 
 ### Option 1: Node.js (Recommended)
 ```bash
 npm start
 # or
+
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black)
+![Live](https://img.shields.io/badge/Status-Live%20Labs-0F766E?style=flat-square)
 node serve.js
 ```
 Then open [http://localhost:3000/](http://localhost:3000/) in your browser.
@@ -84,7 +92,7 @@ Open `index.html` directly in any web browser.
 
 ---
 
-## Run Automated Quality Tests
+## ✅ Run Automated Quality Tests
 
 To run the built-in quality test suite verifying script modules, all 12 routes, and all 8 self-guided experiments:
 ```bash
@@ -93,7 +101,7 @@ npm test
 
 ---
 
-## License & Credits
+## 📄 License & Credits
 
 - Created for educational engineering and open-source science simulation.
 - Original repository: [CircuitVerse-Studio](https://github.com/saanyuvarma-sys/CircuitVerse-Studio)
