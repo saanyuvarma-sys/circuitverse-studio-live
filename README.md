@@ -1,8 +1,8 @@
-# ⚡ CircuitVerse Studio
+# ⚡ CircuitVerse Studio ☄️
 
-![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white)
-![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black)
-![Live](https://img.shields.io/badge/Status-Live%20Labs-0F766E?style=flat-square)
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+![Live](https://img.shields.io/badge/Status-Live%20Labs-0F766E?style=for-the-badge)
 
 **Design. Simulate. Explore.**
 
@@ -72,11 +72,11 @@ https://saanyuvarma-sys.github.io/CircuitVerse-Studio/
 ### Option 1: Node.js (Recommended)
 ```bash
 npm start
-# or
+# or ☄️
 
-![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white)
-![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black)
-![Live](https://img.shields.io/badge/Status-Live%20Labs-0F766E?style=flat-square)
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+![Live](https://img.shields.io/badge/Status-Live%20Labs-0F766E?style=for-the-badge)
 node serve.js
 ```
 Then open [http://localhost:3000/](http://localhost:3000/) in your browser.
@@ -106,6 +106,8 @@ npm test
 - Created for educational engineering and open-source science simulation.
 - Original repository: [CircuitVerse-Studio](https://github.com/saanyuvarma-sys/CircuitVerse-Studio)
 
+---
+
 <p align="center">
-  <img src="https://media.giphy.com/media/Dh5q0sShxgp13DwrvG/giphy.gif" width="220" alt="circuitverse-studio-live preview" />
+  <img src="https://media.giphy.com/media/Dh5q0sShxgp13DwrvG/giphy.gif" width="240" alt="circuitverse-studio-live preview" />
 </p>
